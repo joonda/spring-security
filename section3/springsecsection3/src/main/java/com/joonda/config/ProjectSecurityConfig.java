@@ -58,15 +58,20 @@ public class ProjectSecurityConfig {
         return new InMemoryUserDetailsManager(user, admin);
     }
 
+    /*
+    * PasswordEncoderFactories 활용
+    * BCryptPasswordEncoder가 기본값으로 지정이 되어있다. (Spring Security 에서 권장)
+    * return new BCryptPasswordEncoder(); 를 사용할 수 있찌만, Factories를 쓰는 이유는 유연성을 제공한다.
+    * */
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // PasswordEncoderFactories를 활용
-        // 현재 bcrypt가 기본값으로 지정이 되어있음
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
     /*
     * Spring Security 6.3 버전부터 도입
+    * 비밀번호가 유출되었는지 확인하는 데 도움을 주는 interface
+    * 사용자가 강력한 비밀번호를 사용할 수 있도록 강제한다.
     * */
     @Bean
     public CompromisedPasswordChecker passwordChecker() {
