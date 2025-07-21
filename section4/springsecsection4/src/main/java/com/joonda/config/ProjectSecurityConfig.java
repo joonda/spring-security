@@ -42,10 +42,10 @@ public class ProjectSecurityConfig {
     * 이제는 Database에 유저 정보를 직접 저장한 상태이기 때문에,
     * JdbcUserDetailsManager에 DataSource를 직접 파라미터로 전달해준다.
     * */
-    @Bean
-    public UserDetailsService userDetailsService(DataSource dataSource) {
-        return new JdbcUserDetailsManager(dataSource);
-    }
+//    @Bean
+//    public UserDetailsService userDetailsService(DataSource dataSource) {
+//        return new JdbcUserDetailsManager(dataSource);
+//    }
 
     /*
     * PasswordEncoderFactories 활용
