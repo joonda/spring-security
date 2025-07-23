@@ -9,7 +9,7 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.joonda</groupId>
-	<artifactId>springsecsection4</artifactId>
+	<artifactId>springsecsection5</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>springsecsection4</name>
 	<description>Demo project for Spring Boot</description>
