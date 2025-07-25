@@ -1,4 +1,4 @@
-package com.joonda.springsecsection1;
+package com.joonda.springsecsection3;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
