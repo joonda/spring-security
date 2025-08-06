@@ -1,5 +1,6 @@
 package com.joonda.config;
 
+import com.joonda.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -36,8 +37,8 @@ public class ProjectSecurityConfig {
                 // 어디에도 명시를 하지 않으면, 기본적으로 Spring Security 프레임워크는 항상 403 오류 발생
                 .requestMatchers("/notices", "/contact", "/error", "/register").permitAll());
         http.formLogin(withDefaults());
-        http.httpBasic(withDefaults());
-        return http.build();
+        http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+      return http.build();
     }
 
     /*
