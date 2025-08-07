@@ -24,12 +24,12 @@ public class ProjectSecurityProdConfig {
         // denyAll -> 인증된 사용자든 익명 사용자든 관계 없이 API로 들어오는 모든 request를 거부 (403 에러 반환)
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
-        http
+        http.sessionManagement(smc -> smc.invalidSessionUrl("/invalidSession"))
           .requiresChannel(rcc -> rcc.anyRequest().requiresSecure()) // Only HTTPS
           .csrf(csrfConfig -> csrfConfig.disable())
           .authorizeHttpRequests((requests) -> requests
             .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards").authenticated()
-            .requestMatchers("/notices", "/contact", "/error", "/register").permitAll());
+            .requestMatchers("/notices", "/contact", "/error", "/register", "/invalidSession").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
