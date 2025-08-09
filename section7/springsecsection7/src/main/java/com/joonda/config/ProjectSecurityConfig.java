@@ -26,7 +26,7 @@ public class ProjectSecurityConfig {
         // denyAll -> 인증된 사용자든 익명 사용자든 관계 없이 API로 들어오는 모든 request를 거부 (403 에러 반환)
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
-        http.sessionManagement(smc -> smc.invalidSessionUrl("/invalidSession"))
+        http.sessionManagement(smc -> smc.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true))
         .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure()) // Only HTTP
           .csrf(csrfConfig -> csrfConfig.disable())
           .authorizeHttpRequests((requests) -> requests
