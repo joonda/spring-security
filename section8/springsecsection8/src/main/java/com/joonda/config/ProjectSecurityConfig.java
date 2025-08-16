@@ -2,6 +2,7 @@ package com.joonda.config;
 
 import com.joonda.exceptionhandling.CustomAccessDeniedHandler;
 import com.joonda.exceptionhandling.CustomBasicAuthenticationEntryPoint;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -12,6 +13,10 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+
+import java.util.Collections;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -26,12 +31,25 @@ public class ProjectSecurityConfig {
         // denyAll -> 인증된 사용자든 익명 사용자든 관계 없이 API로 들어오는 모든 request를 거부 (403 에러 반환)
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
-        http.sessionManagement(smc -> smc.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true))
-        .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure()) // Only HTTP
+        http
+          .cors(corsConfig -> corsConfig.configurationSource(new CorsConfigurationSource() {
+            @Override
+            public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+              CorsConfiguration config = new CorsConfiguration();
+              config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+              config.setAllowedMethods(Collections.singletonList("*"));
+              config.setAllowCredentials(true);
+              config.setAllowedHeaders(Collections.singletonList("*"));
+              config.setMaxAge(3600L);
+              return config;
+            }
+          }))
+          .sessionManagement(smc -> smc.invalidSessionUrl("/invalidSession").maximumSessions(3).maxSessionsPreventsLogin(true))
+          .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure()) // Only HTTP
           .csrf(csrfConfig -> csrfConfig.disable())
           .authorizeHttpRequests((requests) -> requests
                 // 로그인이 필요한 페이지는 보안을 설정하고, 로그인이 필요없는 페이지는 permitAll로 보안을 해지.
-                .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards").authenticated()
+                .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards", "/user").authenticated()
                 // 기본적으로 Spring Security가 런타임 에러가 발생하면 error 페이지로 리디렉션한다
                 // 해당 error 페이지는 기본적으로 authenticated 상태이기 때문에, permitAll 로 설정해줘야 오류 메시지를 볼 수 있다.
                 // 상황에 따라서 error 페이지를 authenticated로 할지, permitAll로 할지는 선택!

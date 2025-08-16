@@ -1,13 +1,34 @@
 package com.joonda.controller;
 
+import com.joonda.model.Contact;
+import com.joonda.repository.ContactRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Date;
+import java.util.List;
+import java.util.Random;
+
 @RestController
+@RequiredArgsConstructor
 public class ContactController {
 
+  private final ContactRepository contactRepository;
+
 	@GetMapping("/contact")
-	public String saveContactInquiryDetails() {
-		return "Inquiry details are saved to the Database";
+	public Contact saveContactInquiryDetails(@RequestBody Contact contact) {
+    contact.setContactId(getServiceReqNumber());
+    contact.setCreateDt(new Date(System.currentTimeMillis()));
+    return contactRepository.save(contact);
 	}
+
+  public String getServiceReqNumber() {
+    Random random = new Random();
+    int ranNum = random.nextInt((999999999-9999) + 9999);
+
+    return "SR" + ranNum;
+  }
 }
