@@ -31,8 +31,11 @@ export class DashboardService {
     return this.http.get(environment.rooturl + AppConstants.NOTICES_API_URL,{ observe: 'response' });
   }
 
+  /*
+  * 원래는 공개 API 이지만, 테스트를 위해 비공개로 전환 (withCredentials: true) 
+  * */
   saveMessage(contact : Contact){
-    return this.http.post(environment.rooturl + AppConstants.CONTACT_API_URL,contact,{ observe: 'response'});
+    return this.http.post(environment.rooturl + AppConstants.CONTACT_API_URL,contact,{ observe: 'response', withCredentials: true });
   }
 
 }

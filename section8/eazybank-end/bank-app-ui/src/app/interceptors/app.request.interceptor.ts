@@ -19,6 +19,15 @@ export class XhrInterceptor implements HttpInterceptor {
       httpHeaders = httpHeaders.append('Authorization', 'Basic ' + window.btoa(this.user.email + ':' + this.user.password));
     }
 
+    /*
+    * 요청을 보낼 시, interceptor에서 header에 X-XSRF-TOKEN을 추가
+    * CookieCSRFTokenRepository 에서 기본적으로 Angular, React 등 프레임워크에서는 요청 헤더 내에 X-XSRF-TOKEN 이름으로 CSRF 값을 보내는 지 확인하기 때문
+    * */
+    let xsrf = sessionStorage.getItem('XSRF-TOKEN');
+    if(xsrf) {
+      httpHeaders = httpHeaders.append('X-XSRF-TOKEN', xsrf);
+    }
+
     httpHeaders = httpHeaders.append('X-Requested-With', 'XMLHttpRequest');
     const xhr = req.clone({
       headers: httpHeaders
