@@ -3,10 +3,7 @@ package com.joonda.controller;
 import com.joonda.model.Contact;
 import com.joonda.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
 import java.util.List;
@@ -18,7 +15,7 @@ public class ContactController {
 
   private final ContactRepository contactRepository;
 
-	@GetMapping("/contact")
+	@PostMapping("/contact")
 	public Contact saveContactInquiryDetails(@RequestBody Contact contact) {
     contact.setContactId(getServiceReqNumber());
     contact.setCreateDt(new Date(System.currentTimeMillis()));

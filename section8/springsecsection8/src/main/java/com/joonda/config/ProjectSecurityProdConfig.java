@@ -2,16 +2,21 @@ package com.joonda.config;
 
 import com.joonda.exceptionhandling.CustomAccessDeniedHandler;
 import com.joonda.exceptionhandling.CustomBasicAuthenticationEntryPoint;
+import com.joonda.filter.CsrfCookieFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.password.CompromisedPasswordChecker;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.password.HaveIBeenPwnedRestApiPasswordChecker;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -25,11 +30,14 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class ProjectSecurityProdConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+      CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler = new CsrfTokenRequestAttributeHandler();
+
         // permitAll -> API, MVC 경로를 보안 없이 허용
         // denyAll -> 인증된 사용자든 익명 사용자든 관계 없이 API로 들어오는 모든 request를 거부 (403 에러 반환)
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());
         // http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
-        http
+        http.securityContext(contextConfig -> contextConfig.requireExplicitSave(false))
+          .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
           .cors(corsConfig -> corsConfig.configurationSource(new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
@@ -42,9 +50,11 @@ public class ProjectSecurityProdConfig {
               return config;
             }
           }))
-          .sessionManagement(smc -> smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true))
+          .csrf(csrfConfig -> csrfConfig.csrfTokenRequestHandler(csrfTokenRequestAttributeHandler)
+            .ignoringRequestMatchers("/contact", "/register")
+            .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
+          .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
           .requiresChannel(rcc -> rcc.anyRequest().requiresSecure()) // Only HTTPS
-          .csrf(csrfConfig -> csrfConfig.disable())
           .authorizeHttpRequests((requests) -> requests
             .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards", "/user").authenticated()
             .requestMatchers("/notices", "/contact", "/error", "/register", "/invalidSession").permitAll());
