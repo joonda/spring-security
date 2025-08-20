@@ -153,8 +153,8 @@ create table `notice_details`
     `notice_id`      int          not null auto_increment,
     `notice_summary` varchar(200) not null,
     `notice_details` varchar(500) not null,
-    `notice_beg_dt`   date         not null,
-    `notice_end_dt`   date default null,
+    `notice_beg_dt`  date         not null,
+    `notice_end_dt`  date default null,
     `create_dt`      date default null,
     `update_dt`      date default null,
     primary key (`notice_id`)
@@ -206,3 +206,25 @@ create table `contact_messages`
     `create_dt`     date default null,
     primary key (`contact_id`)
 );
+
+create table `authorities`
+(
+    `id`          int         not null auto_increment,
+    `customer_id` int         not null,
+    `name`        varchar(50) not null,
+    primary key (`id`),
+    key `customer_id` (`customer_id`),
+    constraint `authorities_ibfk_1` foreign key (`customer_id`) references `customer` (`customer_id`)
+)
+
+insert into `authorities` (`customer_id`, `name`)
+values (1, 'VIEWACCOUNT');
+
+insert into `authorities` (`customer_id`, `name`)
+values (1, 'VIEWCARDS');
+
+insert into `authorities` (`customer_id`, `name`)
+values (1, 'VIEWLOANS');
+
+insert into `authorities` (`customer_id`, `name`)
+values (1, 'VIEWBALANCE');
