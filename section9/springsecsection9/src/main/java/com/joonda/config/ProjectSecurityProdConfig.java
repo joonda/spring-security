@@ -32,17 +32,13 @@ public class ProjectSecurityProdConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
       CsrfTokenRequestAttributeHandler csrfTokenRequestAttributeHandler = new CsrfTokenRequestAttributeHandler();
 
-        // permitAll -> API, MVC 경로를 보안 없이 허용
-        // denyAll -> 인증된 사용자든 익명 사용자든 관계 없이 API로 들어오는 모든 request를 거부 (403 에러 반환)
-        // http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());
-        // http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
         http.securityContext(contextConfig -> contextConfig.requireExplicitSave(false))
           .sessionManagement(sessionConfig -> sessionConfig.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
           .cors(corsConfig -> corsConfig.configurationSource(new CorsConfigurationSource() {
             @Override
             public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
               CorsConfiguration config = new CorsConfiguration();
-              config.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+              config.setAllowedOrigins(Collections.singletonList("https://localhost:4200"));
               config.setAllowedMethods(Collections.singletonList("*"));
               config.setAllowCredentials(true);
               config.setAllowedHeaders(Collections.singletonList("*"));
@@ -56,7 +52,11 @@ public class ProjectSecurityProdConfig {
           .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
           .requiresChannel(rcc -> rcc.anyRequest().requiresSecure()) // Only HTTPS
           .authorizeHttpRequests((requests) -> requests
-            .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards", "/user").authenticated()
+            .requestMatchers("/myAccount").hasRole("USER")
+            .requestMatchers("/myBalance").hasAnyRole("ADMIN", "USER")
+            .requestMatchers("/myLoans").hasRole("USER")
+            .requestMatchers("/myCards").hasRole("USER")
+            .requestMatchers("/user").authenticated()
             .requestMatchers("/notices", "/contact", "/error", "/register", "/invalidSession").permitAll());
         http.formLogin(withDefaults());
         http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
